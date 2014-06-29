@@ -1,0 +1,19 @@
+--==Ecrase==--
+Copyright (c) 2014 jmf
+
+Ecrase is the "Ecrase Creative R* Adventure Scripting Engine".
+It is written in C++ with SDL2 for graphics and will allow scripting own point-and-click adventure games.
+Ecrase is released under the MIT license.
+
+
+The meaning of the "R" in ecrase is a secret. ;)
+
+Compiling:
+mkdir bin
+cd bin
+cmake ..
+make
+
+Run with ./ecrase while in the bin/ directory.
+
+
