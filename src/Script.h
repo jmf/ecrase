@@ -28,13 +28,13 @@
 class Script
 {
 public:
-	void openScript(std::string scriptname, struct Room *room);
-	void parseRoom(std::string input, struct Room *room);
+  void openScript(std::string scriptname, struct Room *room);
+  void parseRoom(std::string input, struct Room *room);
   SDL_Texture* loadImage(std::string filename);
 private:
-	int svarpos;
-	int scriptvars[10];
-	Video vid;
+  int svarpos;
+  int scriptvars[10];
+  Video vid;
 };
 
 #endif //_SCRIPT_H_

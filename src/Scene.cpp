@@ -38,7 +38,7 @@ Scene::~Scene()
 void Scene::loadRoom(std::string filename, Video* vid)
 {
 
-	scr->openScript(filename, &rme);
+  scr->openScript(filename, &rme);
 
   rme.fgd=vid->loadImage(rme.fgdfile);
   rme.bgd=vid->loadImage(rme.bgdfile);
@@ -48,9 +48,9 @@ void Scene::loadRoom(std::string filename, Video* vid)
 
 void Scene::placeLayers(Video* vid)
 {
-		SDL_RenderCopy(vid->rdr, rme.bgd, NULL, NULL);
-    //TODO: Load also objects here
-    SDL_RenderCopy(vid->rdr, rme.fgd, NULL, NULL);
+  SDL_RenderCopy(vid->rdr, rme.bgd, NULL, NULL);
+  //TODO: Load also objects here
+  SDL_RenderCopy(vid->rdr, rme.fgd, NULL, NULL);
 }
 
 /*

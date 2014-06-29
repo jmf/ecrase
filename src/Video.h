@@ -27,17 +27,17 @@ class Video
 {
 public:
 
-	Video();
-	~Video();
+  Video();
+  ~Video();
   void createWindow(std::string projectname, int width, int height);
-	void createRenderer();
-	void renderScreen();
+  void createRenderer();
+  void renderScreen();
   void displayScreen();
-	SDL_Renderer *rdr;
+  SDL_Renderer *rdr;
   SDL_Texture* loadImage(std::string filename);
 private:
-	SDL_Window *window;
-	
+  SDL_Window *window;
+
 };
 
 #endif //_VIDEO_H_

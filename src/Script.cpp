@@ -26,42 +26,42 @@ using namespace std;
 
 void Script::openScript(string filename, struct Room *room)
 {
-	string input;
-	fstream script;
-	script.open(("../data/script/"+filename).c_str());
-	if(!script.is_open())
-	{
-		cout<<"Could not read script: "<<filename<<endl;
-	}
-	getline(script, input);
-	if(input=="room")   //TODO:FIX THIS
-	{
+  string input;
+  fstream script;
+  script.open(("../data/script/"+filename).c_str());
+  if(!script.is_open())
+  {
+    cout<<"Could not read script: "<<filename<<endl;
+  }
+  getline(script, input);
+  if(input=="room")   //TODO:FIX THIS
+  {
     while(script.eof()==false){
-			getline(script, input);
-			parseRoom(input, room);
-		}
-	}
-	else
-	{
-		cout<<"ERROR: Wrong header"<<std::endl;
-	}
+      getline(script, input);
+      parseRoom(input, room);
+    }
+  }
+  else
+  {
+    cout<<"ERROR: Wrong header"<<std::endl;
+  }
 }
 
 void Script::parseRoom(std::string line, struct Room *room)
 {
-	int strpos=line.find(":");
-	string id=line.substr(0, strpos);
-	string value=line.substr(strpos+1, 50);
+  int strpos=line.find(":");
+  string id=line.substr(0, strpos);
+  string value=line.substr(strpos+1, 50);
 
-	if(id=="#"){
-		std::cout<<value<<endl; //Display comment
-	}
-	else if(id=="bgd"){
+  if(id=="#"){
+    std::cout<<value<<endl; //Display comment
+  }
+  else if(id=="bgd"){
     room->bgdfile=value;
-	}
-	else if(id=="fgd"){
+  }
+  else if(id=="fgd"){
     room->fgdfile=value;
-  }	
+  }
 }
 
 /*

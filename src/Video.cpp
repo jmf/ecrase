@@ -24,35 +24,35 @@
 
 Video::Video()
 {
-	if(SDL_Init(SDL_INIT_EVERYTHING)!=0) //Initialize everything
+  if(SDL_Init(SDL_INIT_EVERYTHING)!=0) //Initialize everything
   {
-		std::cout<<"[ERROR]: Initializing SDL failed"<<std::endl;
-	}
+    std::cout<<"[ERROR]: Initializing SDL failed"<<std::endl;
+  }
 }
 
 Video::~Video()
 {
-	SDL_DestroyRenderer(rdr);
-	SDL_DestroyWindow(window);
+  SDL_DestroyRenderer(rdr);
+  SDL_DestroyWindow(window);
 }
 
 void Video::createWindow(std::string projectname, int width, int height)
 {
   Video::window = SDL_CreateWindow(projectname.c_str(), 100, 100, width, height, SDL_WINDOW_SHOWN);
-	if(!window)
-	{
-		std::cout<<"Window creation failed."<<std::endl;
-	}
+  if(!window)
+  {
+    std::cout<<"Window creation failed."<<std::endl;
+  }
 }
 
 
 void Video::createRenderer()
 {
-	rdr = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    if(!rdr)
-	{
-		std::cout<<"Renderer could not be created."<<std::endl;
-	}
+  rdr = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+  if(!rdr)
+  {
+    std::cout<<"Renderer could not be created."<<std::endl;
+  }
 }
 
 SDL_Texture* Video::loadImage(std::string filename)//TODO: Do it better
@@ -65,8 +65,8 @@ SDL_Texture* Video::loadImage(std::string filename)//TODO: Do it better
 void Video::renderScreen()
 {
   //TODO: Clear the screen so it actually works
-	//SDL_RenderClear(rdr);
-	//SDL_RenderCopy(rdr, NULL, NULL, NULL);
-	SDL_RenderPresent(rdr);
+  //SDL_RenderClear(rdr);
+  //SDL_RenderCopy(rdr, NULL, NULL, NULL);
+  SDL_RenderPresent(rdr);
 }
 

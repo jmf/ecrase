@@ -40,8 +40,8 @@ struct Object{
 class Scene
 {
 public:
-	Scene();
-	~Scene();
+  Scene();
+  ~Scene();
   void loadRoom(std::string filename, Video* vid);
   void placeLayers(Video* vid);
 

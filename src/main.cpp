@@ -31,28 +31,28 @@ using namespace std;
 
 int main(void)
 {
-	cout<<"ecrase version 0.0.1"<<endl;
-	cout<<"    (c) 2014 jmf    "<<endl;
-	
-	Video vid; //Video-Objekt handles SDL
+  cout<<"ecrase version 0.0.1"<<endl;
+  cout<<"    (c) 2014 jmf    "<<endl;
+
+  Video vid; //Video-Objekt handles SDL
   Scene scn;
 
-	vid.createWindow(projectname,width, height);
-	vid.createRenderer();
-	
+  vid.createWindow(projectname,width, height);
+  vid.createRenderer();
+
   //TODO: Use real function here
 
   cout<<"Wait for it..."<<endl;
 
   SDL_RenderClear(vid.rdr);
   scn.loadRoom("init", &vid);
-	vid.renderScreen();
-	SDL_Delay(2000);
-	scn.placeLayers(&vid);
-	vid.renderScreen();
- 	SDL_Delay(4000);
-	
-	SDL_Quit();
+  vid.renderScreen();
+  SDL_Delay(2000);
+  scn.placeLayers(&vid);
+  vid.renderScreen();
+  SDL_Delay(4000);
+  
+  SDL_Quit();
 
 
 }
