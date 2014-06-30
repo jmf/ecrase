@@ -22,51 +22,171 @@
 #include "Script.h"
 #include "Scene.h"
 
+#define RMEDEF 0
+#define ETYDEF 1
+#define SCRIPT 2
+
 using namespace std;
 
-void Script::openScript(string filename, struct Room *room)
+int Script::entnr=0;
+
+void Script::openScript(string filename, struct Room *room, struct Entity *ety, int mode)
 {
   string input;
+  string type;
   fstream script;
-  script.open(("../data/script/"+filename).c_str());
+
+  if(mode==RMEDEF){
+    type="rooms";
+  }
+
+  else{
+    type="entities";
+  }
+
+  script.open(("../data/"+type+"/"+filename).c_str());
   if(!script.is_open())
   {
-    cout<<"Could not read script: "<<filename<<endl;
+    cout<<"ERROR: Could not read script: "<<filename<<endl;
   }
   getline(script, input);
-  if(input=="room")   //TODO:FIX THIS
-  {
+  if(mode==RMEDEF){
     while(script.eof()==false){
       getline(script, input);
-      parseRoom(input, room);
+      parseRoom(input, room, ety);
     }
   }
+
+  else if(mode==ETYDEF){
+    Script::entnr=0;
+    for(int n; n<=4; n++){
+      ety[n].exists=0;
+    }
+    while(script.eof()==false){
+      getline(script, input);
+      parseEntity(input, ety);
+    }
+  }
+
+  else if(mode==SCRIPT){
+    while(script.eof()==false){
+      getline(script, input);
+      parseEntity(input, ety);
+    }
+  }
+
   else
   {
-    cout<<"ERROR: Wrong header"<<std::endl;
+    cout<<"ERROR: Bad Read Code"<<std::endl;
   }
+  script.close();
+
 }
 
-void Script::parseRoom(std::string line, struct Room *room)
+
+
+void Script::parseRoom(std::string line, struct Room *room, struct Entity *ety)
 {
   int strpos=line.find(":");
   string id=line.substr(0, strpos);
   string value=line.substr(strpos+1, 50);
 
-  if(id=="#"){
-    std::cout<<value<<endl; //Display comment
-  }
-  else if(id=="bgd"){
+  if(id=="bgd"){ //Load room background
     room->bgdfile=value;
   }
-  else if(id=="fgd"){
+
+  else if(id=="fgd"){ //Load room foreground
     room->fgdfile=value;
+  }
+
+  else if(id=="object"){ //Load object filename
+    ety[Script::entnr].scriptname=value;
+    ety[Script::entnr].exists=true;
+    cout<<"Script added: "<<ety[Script::entnr].scriptname<<endl;
+    Script::entnr++;
+    //TODO: Make it abort!
+    if(Script::entnr>4){
+      cout<<"CRITICAL ERROR: ENTITIY ARRAY OUT OF BOUNDS (Script::parseRoom)"<<endl;
+      Script::entnr=0;//Quick fix. Not permanent.
+    }
+  }
+
+  else if((id=="#")||(id=="")){ //Ignore comment or empty
+  }
+   
+  else{ //Wrong formatting
+    cout<<"ERROR: Bad formatting @ "<<line<<endl;
   }
 }
 
+
+void Script::parseEntity(std::string line, struct Entity *ety)
+{
+  int strpos=line.find(":");
+  string id=line.substr(0, strpos);
+  string value=line.substr(strpos+1, 50);
+
+  if(id=="image"){ //Load object image
+    ety[Script::entnr].imgname=value;
+  }
+
+  else if(id=="visible"){ //Visible?
+    if(value=="true"){
+      ety[Script::entnr].visible=true;
+    }
+    else{
+      ety[Script::entnr].visible=false;
+    }
+  }
+
+  else if(id=="active"){ //Active?
+    ety[Script::entnr].exists=true;
+    if(value=="true"){
+      ety[Script::entnr].active=true;
+    }
+    else{
+      ety[Script::entnr].active=false;
+    }
+  }
+
+  else if(id=="xpos"){ //x position
+    ety[Script::entnr].xpos=Str2Uint(value);
+  }
+
+  else if(id=="ypos"){ //x position
+    ety[Script::entnr].ypos=Str2Uint(value);
+  }
+
+  else if(id=="xdim"){ //x position
+    ety[Script::entnr].xdim=Str2Uint(value);
+  }
+
+  else if(id=="ydim"){ //x position
+    ety[Script::entnr].ydim=Str2Uint(value);
+  }
+
+  else if((id=="#")||(id=="")){ //Ignore comment or empty
+  }
+   
+  else{ //Wrong formatting
+    cout<<"ERROR: Bad formatting @ "<<line<<endl;
+  }
+}
+
+uint Script::Str2Uint(string input){//TODO: Maybe make it less hacky
+  uint multiplicator=1;
+  int output=0;
+  for(int n=input.size()-1; n>=0; n--){
+    output=output+(input[n]-48)*multiplicator;
+    multiplicator=multiplicator*10;
+  }
+  return output;
+}
+
+
 /*
 TODO:
--Seperate parser for rooms and objects
--Although that, use as much shared code as possible
+-Add script parser for entity scripts
+-Exception handling!!!
 */
 

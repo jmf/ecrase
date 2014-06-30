@@ -3,4 +3,5 @@ bgd:background.png
 fgd:foreground.png
 #:Example config for ecrase by jmf.
 #:Hello world - Nice to see you!
+object:vase
 

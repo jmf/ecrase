@@ -1,0 +1,9 @@
+#:Vase :D
+image:vase.png
+visible:true
+active:true
+xpos:300
+ypos:120
+xdim:100
+ydim:100
+

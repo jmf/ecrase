@@ -31,9 +31,17 @@ struct Room{
   SDL_Texture *bgd;//Background image
 };
 
-struct Object{
-  bool visible;
-  std::string name;
+struct Entity{
+  std::string scriptname;
+  std::string imgname;
+  bool exists;//Does actually exist
+  bool visible;//Is visible on the screen
+  bool active;//Is clickable on the screen
+  uint xpos;//x coordinate
+  uint ypos;//y coordinate
+  uint xdim;//width
+  uint ydim;//length
+  SDL_Texture *entimg;//TODO: Add animation support
 };
 
 

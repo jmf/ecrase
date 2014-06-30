@@ -24,7 +24,12 @@
 #include "Script.h"
 #include "Video.h"
 
+#define RMEDEF 0
+#define ETYDEF 1
+#define SCRIPT 2
+
 Room rme;
+Entity ety[5];
 Script* scr;
 
 Scene::Scene()
@@ -38,21 +43,34 @@ Scene::~Scene()
 void Scene::loadRoom(std::string filename, Video* vid)
 {
 
-  scr->openScript(filename, &rme);
-
+  scr->openScript(filename, &rme, ety, RMEDEF);
   rme.fgd=vid->loadImage(rme.fgdfile);
   rme.bgd=vid->loadImage(rme.bgdfile);
 
+  for(int n=0; (ety[n].exists==true)&&(n<=4); n++){
+    scr->openScript(ety[n].scriptname, &rme, ety, ETYDEF);
+    ety[n].entimg=vid->loadImage(ety[n].imgname);
+  }
 }
 
 
 void Scene::placeLayers(Video* vid)
 {
+  SDL_Rect dst;
+
   SDL_RenderCopy(vid->rdr, rme.bgd, NULL, NULL);
-  //TODO: Load also objects here
+
+  for(int n=0; (ety[n].exists==true)&&(n<=4); n++){
+    dst.x=ety[n].xpos;//Position
+    dst.y=ety[n].ypos;//Position
+    SDL_QueryTexture(ety[n].entimg, NULL, NULL, &dst.w, &dst.h);
+    SDL_RenderCopy(vid->rdr, ety[n].entimg, NULL, &dst);
+  }
+
   SDL_RenderCopy(vid->rdr, rme.fgd, NULL, NULL);
 }
 
 /*
 TODO: Add objects
 */
+
