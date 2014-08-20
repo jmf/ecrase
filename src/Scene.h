@@ -25,15 +25,16 @@
 #define _SCENE_H_
 
 struct Room{
-  std::string fgdfile;
-  std::string bgdfile;
-  SDL_Texture *fgd;//Foreground image
-  SDL_Texture *bgd;//Background image
+  int animcount;
+  std::string fgdfile[5];
+  std::string bgdfile[5];
+  SDL_Texture *fgd[5];//Foreground image
+  SDL_Texture *bgd[5];//Background image
 };
 
 struct Entity{
+  int animcount;
   std::string scriptname;
-  std::string imgname;
   bool exists;//Does actually exist
   bool visible;//Is visible on the screen
   bool active;//Is clickable on the screen
@@ -41,7 +42,8 @@ struct Entity{
   uint ypos;//y coordinate
   uint xdim;//width
   uint ydim;//length
-  SDL_Texture *entimg;//TODO: Add animation support
+  SDL_Texture *entimg[5];//Images
+  std::string imgname[5];
 };
 
 

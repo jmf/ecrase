@@ -1,7 +1,8 @@
-room
-bgd:background.png
-fgd:foreground.png
 #:Example config for ecrase by jmf.
 #:Hello world - Nice to see you!
-object:vase
+animcount:1
+bgd:background.png
+fgd:foreground.png
+object:vase.ety
+
 

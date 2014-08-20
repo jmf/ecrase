@@ -34,26 +34,25 @@ int main(void)
   cout<<"ecrase version 0.0.1"<<endl;
   cout<<"    (c) 2014 jmf    "<<endl;
 
-  Video vid; //Video-Objekt handles SDL
+  SDL_Event event;
+  bool quit=false;
+
+  Video vid; //Video-Object handles SDL
   Scene scn;
 
   vid.createWindow(projectname,width, height);
   vid.createRenderer();
+  scn.loadRoom("init.rme", &vid);
 
-  //TODO: Use real function here
 
-  cout<<"Wait for it..."<<endl;
+    //TODO: Add events and a proper game loop
+    SDL_RenderClear(vid.rdr);
+    scn.placeLayers(&vid);
+    vid.renderScreen();
+    SDL_Delay(4000);
 
-  SDL_RenderClear(vid.rdr);
-  scn.loadRoom("init", &vid);
-  vid.renderScreen();
-  SDL_Delay(2000);
-  scn.placeLayers(&vid);
-  vid.renderScreen();
-  SDL_Delay(4000);
-  
+
   SDL_Quit();
-
 
 }
 

@@ -1,9 +1,10 @@
-#:Vase :D
+#:A greek vase
+animcount:1
 image:vase.png
 visible:true
 active:true
-xpos:300
-ypos:120
+xpos:350
+ypos:400
 xdim:100
 ydim:100
 

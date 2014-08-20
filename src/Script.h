@@ -29,11 +29,11 @@ class Script
 {
 public:
   void openScript(std::string scriptname, struct Room *room, struct Entity *ety, int mode);
-  void parseRoom(std::string input, struct Room *room, struct Entity *ety);
-  void parseEntity(std::string input, struct Entity *ety);
+  void parseRoom(std::string id, std::string value, struct Room *room, struct Entity *ety);
+  void parseEntity(std::string id, std::string value, struct Entity *ety);
   SDL_Texture* loadImage(std::string filename);
 private:
-  uint Str2Uint(std::string input);
+  int Str2Int(std::string input);
   static int entnr;
   int svarpos;
   int scriptvars[10];

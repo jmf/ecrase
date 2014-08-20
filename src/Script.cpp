@@ -22,158 +22,121 @@
 #include "Script.h"
 #include "Scene.h"
 
-#define RMEDEF 0
-#define ETYDEF 1
-#define SCRIPT 2
+enum def{
+  RMEDEF,
+  ETYDEF,
+  SCRDEF
+};
 
 using namespace std;
 
 int Script::entnr=0;
 
+
 void Script::openScript(string filename, struct Room *room, struct Entity *ety, int mode)
 {
+  Script::entnr=0;
   string input;
-  string type;
+  string id;
+  string value;
+  int strpos;
+
   fstream script;
-
-  if(mode==RMEDEF){
-    type="rooms";
-  }
-
-  else{
-    type="entities";
-  }
-
-  script.open(("../data/"+type+"/"+filename).c_str());
+  script.open(("../data/scene/"+filename).c_str());
   if(!script.is_open())
   {
     cout<<"ERROR: Could not read script: "<<filename<<endl;
   }
-  getline(script, input);
-  if(mode==RMEDEF){
-    while(script.eof()==false){
-      getline(script, input);
-      parseRoom(input, room, ety);
-    }
-  }
+  while(script.eof()==false){
+    getline(script, input);
 
-  else if(mode==ETYDEF){
-    Script::entnr=0;
-    for(int n; n<=4; n++){
-      ety[n].exists=0;
-    }
-    while(script.eof()==false){
-      getline(script, input);
-      parseEntity(input, ety);
-    }
-  }
+    strpos=input.find(":");
+    id = input.substr(0, strpos);
+    value = input.substr(strpos+1, 50);
 
-  else if(mode==SCRIPT){
-    while(script.eof()==false){
-      getline(script, input);
-      parseEntity(input, ety);
+    if(mode==RMEDEF){
+      parseRoom(id, value, room, ety);
     }
-  }
-
-  else
-  {
-    cout<<"ERROR: Bad Read Code"<<std::endl;
+    else if (mode==ETYDEF){
+      parseEntity(id, value, ety);
+    }
   }
   script.close();
-
 }
 
 
-
-void Script::parseRoom(std::string line, struct Room *room, struct Entity *ety)
+void Script::parseRoom(string id, string value, struct Room *rme, struct Entity *ety)
 {
-  int strpos=line.find(":");
-  string id=line.substr(0, strpos);
-  string value=line.substr(strpos+1, 50);
-
-  if(id=="bgd"){ //Load room background
-    room->bgdfile=value;
+  if(id=="animcount"){
+    rme->animcount=Str2Int(value);
   }
-
-  else if(id=="fgd"){ //Load room foreground
-    room->fgdfile=value;
+  else if(id=="fgd"){
+    rme->fgdfile[0]=value;
   }
-
-  else if(id=="object"){ //Load object filename
+  else if(id=="bgd"){
+    rme->bgdfile[0]=value;
+  }
+  else if(id=="object"){
     ety[Script::entnr].scriptname=value;
     ety[Script::entnr].exists=true;
-    cout<<"Script added: "<<ety[Script::entnr].scriptname<<endl;
     Script::entnr++;
-    //TODO: Make it abort!
-    if(Script::entnr>4){
-      cout<<"CRITICAL ERROR: ENTITIY ARRAY OUT OF BOUNDS (Script::parseRoom)"<<endl;
-      Script::entnr=0;//Quick fix. Not permanent.
-    }
+    //TODO: Handle overflow
   }
-
-  else if((id=="#")||(id=="")){ //Ignore comment or empty
+  else if(id==""||id=="#"){
+    //Comment or empty line
   }
-   
-  else{ //Wrong formatting
-    cout<<"ERROR: Bad formatting @ "<<line<<endl;
+  else{
+    cout<<"Room -> Unrecognized Command:" <<id<<endl;
   }
 }
 
 
-void Script::parseEntity(std::string line, struct Entity *ety)
+void Script::parseEntity(string id, string value, struct Entity *ety)
 {
-  int strpos=line.find(":");
-  string id=line.substr(0, strpos);
-  string value=line.substr(strpos+1, 50);
-
-  if(id=="image"){ //Load object image
-    ety[Script::entnr].imgname=value;
+  if(id=="animcount"){
+    ety->animcount=Str2Int(value);
   }
-
-  else if(id=="visible"){ //Visible?
+  else if(id=="image"){
+    ety->imgname[0]=value;
+  }
+  else if(id=="visible"){
     if(value=="true"){
-      ety[Script::entnr].visible=true;
+      ety->visible=true;
     }
     else{
-      ety[Script::entnr].visible=false;
+      ety->visible=false;
     }
   }
-
-  else if(id=="active"){ //Active?
-    ety[Script::entnr].exists=true;
+  else if(id=="active"){
     if(value=="true"){
-      ety[Script::entnr].active=true;
+      ety->active=true;
     }
     else{
-      ety[Script::entnr].active=false;
+      ety->active=false;
     }
   }
-
-  else if(id=="xpos"){ //x position
-    ety[Script::entnr].xpos=Str2Uint(value);
+  else if(id=="xpos"){
+    ety->xpos=Str2Int(value);
   }
-
-  else if(id=="ypos"){ //x position
-    ety[Script::entnr].ypos=Str2Uint(value);
+  else if(id=="ypos"){
+    ety->ypos=Str2Int(value);
   }
-
-  else if(id=="xdim"){ //x position
-    ety[Script::entnr].xdim=Str2Uint(value);
+  else if(id=="xdim"){
+    ety->xdim=Str2Int(value);
   }
-
-  else if(id=="ydim"){ //x position
-    ety[Script::entnr].ydim=Str2Uint(value);
+  else if(id=="ydim"){
+    ety->ydim=Str2Int(value);
   }
-
-  else if((id=="#")||(id=="")){ //Ignore comment or empty
+  else if(id==""||id=="#"){
+    //Comment or empty line
   }
-   
-  else{ //Wrong formatting
-    cout<<"ERROR: Bad formatting @ "<<line<<endl;
+  else{
+    cout<<"Ety -> Unrecognized Command:" <<id<<endl;
   }
 }
 
-uint Script::Str2Uint(string input){//TODO: Maybe make it less hacky
+
+int Script::Str2Int(string input){//TODO: Maybe make it less hacky
   uint multiplicator=1;
   int output=0;
   for(int n=input.size()-1; n>=0; n--){
