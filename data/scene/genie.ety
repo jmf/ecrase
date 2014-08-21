@@ -1,0 +1,19 @@
+#:A genie! 3 wishes!
+animcount:1
+image:genie.png
+visible:true
+active:true
+xpos:350
+ypos:305
+xdim:100
+ydim:100
+
+on_interact:
+write:You wished for a party?
+write: 
+endscr:
+
+on_look:
+write:A real genie!
+write: 
+endscr:

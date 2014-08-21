@@ -55,7 +55,7 @@ void Video::createRenderer()
   }
 }
 
-SDL_Texture* Video::loadImage(std::string filename)//TODO: Do it better
+SDL_Texture* Video::loadImage(std::string filename)
 {
   SDL_Surface *tmp = IMG_Load(("../data/images/"+filename).c_str());
   return SDL_CreateTextureFromSurface(rdr, tmp);

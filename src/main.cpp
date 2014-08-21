@@ -44,13 +44,29 @@ int main(void)
   vid.createRenderer();
   scn.loadRoom("init.rme", &vid);
 
+  while(quit==false){
 
-    //TODO: Add events and a proper game loop
+    while(SDL_PollEvent(&event)){
+      switch (event.type){
+        case SDL_QUIT:
+          quit=true;
+          break;
+        case SDL_MOUSEBUTTONDOWN:
+          if(event.button.button==SDL_BUTTON_LEFT){
+            scn.onClick(event.motion.x, event.motion.y, &vid, "on_interact:");
+          }
+          else if(event.button.button==SDL_BUTTON_RIGHT){
+            scn.onClick(event.motion.x, event.motion.y, &vid, "on_look:");
+          }
+          break;
+      }
+    }
+
     SDL_RenderClear(vid.rdr);
     scn.placeLayers(&vid);
     vid.renderScreen();
-    SDL_Delay(4000);
-
+    SDL_Delay(40);
+  }
 
   SDL_Quit();
 
@@ -58,7 +74,6 @@ int main(void)
 
 /*TODO:
 -Add a proper error handler class
--Scripts handling and saving - how?
--Special functions to activate scripts: on_enter, on_enter_first, on_leave...
+-Script variables & savegames - how?
 */
 

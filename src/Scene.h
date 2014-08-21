@@ -19,33 +19,11 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <string>
+#include <fstream>
 #include "Video.h"
 
 #ifndef _SCENE_H_
 #define _SCENE_H_
-
-struct Room{
-  int animcount;
-  std::string fgdfile[5];
-  std::string bgdfile[5];
-  SDL_Texture *fgd[5];//Foreground image
-  SDL_Texture *bgd[5];//Background image
-};
-
-struct Entity{
-  int animcount;
-  std::string scriptname;
-  bool exists;//Does actually exist
-  bool visible;//Is visible on the screen
-  bool active;//Is clickable on the screen
-  uint xpos;//x coordinate
-  uint ypos;//y coordinate
-  uint xdim;//width
-  uint ydim;//length
-  SDL_Texture *entimg[5];//Images
-  std::string imgname[5];
-};
-
 
 class Scene
 {
@@ -54,6 +32,8 @@ public:
   ~Scene();
   void loadRoom(std::string filename, Video* vid);
   void placeLayers(Video* vid);
+  void onClick(int x, int y, Video* vid, std::string parameter);
+  void parseScript(int n, std::string action, Video* vid);
 
 };
 

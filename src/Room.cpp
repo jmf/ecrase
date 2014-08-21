@@ -19,67 +19,84 @@
 #include <string>
 #include <fstream>
 #include <iostream>
-#include "Script.h"
-#include "Scene.h"
+#include "Room.h"
 
 enum def{
   RMEDEF,
-  ETYDEF,
-  SCRDEF
+  ETYDEF
 };
 
 using namespace std;
 
-int Script::entnr=0;
 
-
-void Script::openScript(string filename, struct Room *room, struct Entity *ety, int mode)
+void Room::loadRoom(string filename, int defval)
 {
-  Script::entnr=0;
   string input;
   string id;
   string value;
   int strpos;
+  bool stopread=false;
 
   fstream script;
   script.open(("../data/scene/"+filename).c_str());
+
   if(!script.is_open())
   {
-    cout<<"ERROR: Could not read script: "<<filename<<endl;
+    cout<<"ERROR: Could not read def: "<<filename<<endl;
   }
-  while(script.eof()==false){
+
+  if(defval==RMEDEF){
+    Room::etynr=0;
+    for(int n=0; n<=4; n++){//Delete previous objects
+      Room::ety[n].exists = false;
+    }
+  }
+
+  while(script.eof()==false && stopread==false){
     getline(script, input);
 
-    strpos=input.find(":");
+    strpos = input.find(":");
     id = input.substr(0, strpos);
     value = input.substr(strpos+1, 50);
 
-    if(mode==RMEDEF){
-      parseRoom(id, value, room, ety);
+    if(defval==RMEDEF){
+      Room::parseRoom(id, value);
     }
-    else if (mode==ETYDEF){
-      parseEntity(id, value, ety);
+    else if (defval==ETYDEF){
+      if((id=="on_look")||(id=="on_interact")){
+        stopread=true;
+      }
+      else{
+        Room::parseEntity(id, value);
+      }
+    }
+    else{
+      cout<<"ERROR: Def called with wrong args"<<endl;
     }
   }
+
+  if (defval==ETYDEF){
+    Room::etynr++;
+  }
+
   script.close();
 }
 
 
-void Script::parseRoom(string id, string value, struct Room *rme, struct Entity *ety)
-{
+void Room::parseRoom(string id, string value){
   if(id=="animcount"){
-    rme->animcount=Str2Int(value);
+    Room::animcount = Str2Int(value);
   }
   else if(id=="fgd"){
-    rme->fgdfile[0]=value;
+    Room::fgdfile[0] = value;
   }
   else if(id=="bgd"){
-    rme->bgdfile[0]=value;
+    Room::bgdfile[0] = value;
   }
   else if(id=="object"){
-    ety[Script::entnr].scriptname=value;
-    ety[Script::entnr].exists=true;
-    Script::entnr++;
+    Room::ety[Room::etynr].scriptname = value;
+    Room::ety[Room::etynr].exists = true;
+    Room::loadRoom(value, ETYDEF);
     //TODO: Handle overflow
   }
   else if(id==""||id=="#"){
@@ -91,41 +108,41 @@ void Script::parseRoom(string id, string value, struct Room *rme, struct Entity 
 }
 
 
-void Script::parseEntity(string id, string value, struct Entity *ety)
+void Room::parseEntity(string id, string value)
 {
   if(id=="animcount"){
-    ety->animcount=Str2Int(value);
+    Room::ety[Room::etynr].animcount = Str2Int(value);
   }
   else if(id=="image"){
-    ety->imgname[0]=value;
+    Room::ety[Room::etynr].imgname[0] = value;
   }
   else if(id=="visible"){
     if(value=="true"){
-      ety->visible=true;
+      Room::ety[Room::etynr].visible = true;
     }
     else{
-      ety->visible=false;
+      Room::ety[Room::etynr].visible = false;
     }
   }
   else if(id=="active"){
     if(value=="true"){
-      ety->active=true;
+      Room::ety[Room::etynr].active = true;
     }
     else{
-      ety->active=false;
+      Room::ety[Room::etynr].active = false;
     }
   }
   else if(id=="xpos"){
-    ety->xpos=Str2Int(value);
+    Room::ety[Room::etynr].xpos = Str2Int(value);
   }
   else if(id=="ypos"){
-    ety->ypos=Str2Int(value);
+    Room::ety[Room::etynr].ypos = Str2Int(value);
   }
   else if(id=="xdim"){
-    ety->xdim=Str2Int(value);
+    Room::ety[Room::etynr].xdim = Str2Int(value);
   }
   else if(id=="ydim"){
-    ety->ydim=Str2Int(value);
+    Room::ety[Room::etynr].ydim = Str2Int(value);
   }
   else if(id==""||id=="#"){
     //Comment or empty line
@@ -136,10 +153,10 @@ void Script::parseEntity(string id, string value, struct Entity *ety)
 }
 
 
-int Script::Str2Int(string input){//TODO: Maybe make it less hacky
-  uint multiplicator=1;
-  int output=0;
-  for(int n=input.size()-1; n>=0; n--){
+int Room::Str2Int(string input){//TODO: Maybe make it less hacky
+  int multiplicator = 1;
+  int output = 0;
+  for(int n =input.size()-1; n>=0; n--){
     output=output+(input[n]-48)*multiplicator;
     multiplicator=multiplicator*10;
   }
@@ -149,7 +166,6 @@ int Script::Str2Int(string input){//TODO: Maybe make it less hacky
 
 /*
 TODO:
--Add script parser for entity scripts
 -Exception handling!!!
 */
 

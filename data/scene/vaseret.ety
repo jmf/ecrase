@@ -9,9 +9,9 @@ xdim:100
 ydim:100
 
 on_interact:
-write:Can't touch this!
+write:STOP! Hammer time!
 write: 
-chroom:disco.rme
+chroom:init.rme
 endscr:
 
 on_look:
