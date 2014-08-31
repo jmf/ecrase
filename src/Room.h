@@ -16,15 +16,16 @@
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <string>
-#include <fstream>
 #include <iostream>
+#include <string>
+#include <leveldb/db.h>
 #include "Video.h"
 
 #ifndef _SCRIPT_H_
 #define _SCRIPT_H_
 
 struct Entity{
+  int etynr;
   int animcount;
   std::string scriptname;
   bool exists;//Does actually exist
@@ -38,9 +39,12 @@ struct Entity{
   std::string imgname[5];
 };
 
-class Room{
-
- public:
+class Room
+{
+public:
+  Room();
+  ~Room();
+  int roomnr;
   int animcount;
   std::string fgdfile[5];
   std::string bgdfile[5];
@@ -48,14 +52,15 @@ class Room{
   SDL_Texture *bgd[5];//Background image
   Entity ety[5];
   int etynr;
-
-  void loadRoom(std::string scriptname, int defval);
-  void parseRoom(std::string id, std::string value);
-  void parseEntity(std::string id, std::string value);
-  SDL_Texture* loadImage(std::string filename);
- private:
+  leveldb::DB* rmedb;
+  leveldb::DB* etydb;
+  leveldb::Options dbopt;
+  void loadDef(leveldb::Slice id, int defval);
+private:
+  void parseRoom(leveldb::Slice id);
+  void parseEntity(leveldb::Slice id);
   int Str2Int(std::string input);
 };
 
-#endif //_SCRIPT_H_
+#endif //_ROOM_H_
 

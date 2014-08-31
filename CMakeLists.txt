@@ -32,17 +32,14 @@ file(
         data/*
 )
 
-if (WIN32)
-        set(CMAKE_RC_COMPILE_OBJECT "${CMAKE_RC_COMPILER} -i <SOURCE> -o <OBJECT> -O coff")
-        set(source_files icon.rc ${source_files})
-endif()
-
 FIND_PACKAGE(SDL2 REQUIRED)
 FIND_PACKAGE(SDL2_image REQUIRED)
+find_library(LEVELDB_LIBRARY leveldb)
 
 link_libraries(
    ${SDL2_LIBRARY} 
    ${SDL2_IMAGE_LIBRARY}
+   ${LEVELDB_LIBRARY}
 )
 
 add_executable(

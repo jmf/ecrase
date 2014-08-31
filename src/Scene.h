@@ -16,10 +16,10 @@
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#include <string>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
-#include <string>
-#include <fstream>
+#include <leveldb/db.h>
 #include "Video.h"
 
 #ifndef _SCENE_H_
@@ -30,11 +30,12 @@ class Scene
 public:
   Scene();
   ~Scene();
-  void loadRoom(std::string filename, Video* vid);
+  void loadRoom(leveldb::Slice id, Video* vid);
   void placeLayers(Video* vid);
-  void onClick(int x, int y, Video* vid, std::string parameter);
-  void parseScript(int n, std::string action, Video* vid);
-
+  void onClick(int x, int y, Video* vid, int action);
+  void parseScript(int n, int action, Video* vid);
+private:
+  bool showInventory;
 };
 
 #endif //_SCENE_H_

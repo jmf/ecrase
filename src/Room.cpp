@@ -19,6 +19,7 @@
 #include <string>
 #include <fstream>
 #include <iostream>
+#include <leveldb/db.h>
 #include "Room.h"
 
 enum def{
@@ -28,128 +29,118 @@ enum def{
 
 using namespace std;
 
+Room::Room(){
+  Room::dbopt.create_if_missing = true;
+  leveldb::Status rmestatus = leveldb::DB::Open(dbopt, "../data/scene/rooms", &rmedb);
+  leveldb::Status etystatus = leveldb::DB::Open(dbopt, "../data/scene/entities", &etydb);
+}
 
-void Room::loadRoom(string filename, int defval)
+
+Room::~Room(){
+  delete rmedb;
+  delete etydb;
+}
+
+
+void Room::loadDef(leveldb::Slice id, int defval)
 {
-  string input;
-  string id;
-  string value;
-  int strpos;
-  bool stopread=false;
 
-  fstream script;
-  script.open(("../data/scene/"+filename).c_str());
-
-  if(!script.is_open())
-  {
-    cout<<"ERROR: Could not read def: "<<filename<<endl;
-  }
 
   if(defval==RMEDEF){
+    for(int n=0; ety[n].exists!=false; n++){
+      Room::ety[n].exists=false;
+    }
     Room::etynr=0;
-    for(int n=0; n<=4; n++){//Delete previous objects
-      Room::ety[n].exists = false;
-    }
+    Room::parseRoom(id);
   }
-
-  while(script.eof()==false && stopread==false){
-    getline(script, input);
-
-    strpos = input.find(":");
-    id = input.substr(0, strpos);
-    value = input.substr(strpos+1, 50);
-
-    if(defval==RMEDEF){
-      Room::parseRoom(id, value);
-    }
-    else if (defval==ETYDEF){
-      if((id=="on_look")||(id=="on_interact")){
-        stopread=true;
-      }
-      else{
-        Room::parseEntity(id, value);
-      }
-    }
-    else{
-      cout<<"ERROR: Def called with wrong args"<<endl;
-    }
-  }
-
-  if (defval==ETYDEF){
+  else if(defval==ETYDEF){
+    Room::parseEntity(id);
+    Room::ety[Room::etynr].exists=true;
     Room::etynr++;
   }
-
-  script.close();
-}
-
-
-void Room::parseRoom(string id, string value){
-  if(id=="animcount"){
-    Room::animcount = Str2Int(value);
-  }
-  else if(id=="fgd"){
-    Room::fgdfile[0] = value;
-  }
-  else if(id=="bgd"){
-    Room::bgdfile[0] = value;
-  }
-  else if(id=="object"){
-    Room::ety[Room::etynr].scriptname = value;
-    Room::ety[Room::etynr].exists = true;
-    Room::loadRoom(value, ETYDEF);
-    //TODO: Handle overflow
-  }
-  else if(id==""||id=="#"){
-    //Comment or empty line
-  }
   else{
-    cout<<"Room -> Unrecognized Command:" <<id<<endl;
+    cout<<"ERROR: Undefined definition ID"<<endl;
   }
 }
 
 
-void Room::parseEntity(string id, string value)
+void Room::parseRoom(leveldb::Slice id){
+  std::string value;
+  std::string strid = id.ToString();
+
+  leveldb::Status state = rmedb->Get(leveldb::ReadOptions(), id, &value);
+  
+  state = rmedb->Get(leveldb::ReadOptions(), (strid+"_ac").c_str(), &value);
+  Room::animcount = Str2Int(value);
+
+  state = rmedb->Get(leveldb::ReadOptions(), (strid+"_fgd").c_str(), &value);
+  Room::fgdfile[0] = value;
+
+  state = rmedb->Get(leveldb::ReadOptions(), (strid+"_bgd").c_str(), &value);
+  Room::bgdfile[0] = value;
+
+  state = rmedb->Get(leveldb::ReadOptions(), (strid+"_obj0").c_str(), &value);
+  if(value!="NULL"){
+    loadDef(value, ETYDEF);
+  }
+  state = rmedb->Get(leveldb::ReadOptions(), (strid+"_obj1").c_str(), &value);
+  if(value!="NULL"){
+    loadDef(value, ETYDEF);
+  }
+  state = rmedb->Get(leveldb::ReadOptions(), (strid+"_obj2").c_str(), &value);
+  if(value!="NULL"){
+    loadDef(value, ETYDEF);
+  }
+  state = rmedb->Get(leveldb::ReadOptions(), (strid+"_obj3").c_str(), &value);
+  if(value!="NULL"){
+    loadDef(value, ETYDEF);
+  }  
+  state = rmedb->Get(leveldb::ReadOptions(), (strid+"_obj4").c_str(), &value);
+  if(value!="NULL"){
+    loadDef(value, ETYDEF);
+  }
+}
+
+
+void Room::parseEntity(leveldb::Slice id)
 {
-  if(id=="animcount"){
-    Room::ety[Room::etynr].animcount = Str2Int(value);
-  }
-  else if(id=="image"){
-    Room::ety[Room::etynr].imgname[0] = value;
-  }
-  else if(id=="visible"){
-    if(value=="true"){
-      Room::ety[Room::etynr].visible = true;
-    }
-    else{
-      Room::ety[Room::etynr].visible = false;
-    }
-  }
-  else if(id=="active"){
-    if(value=="true"){
-      Room::ety[Room::etynr].active = true;
-    }
-    else{
-      Room::ety[Room::etynr].active = false;
-    }
-  }
-  else if(id=="xpos"){
-    Room::ety[Room::etynr].xpos = Str2Int(value);
-  }
-  else if(id=="ypos"){
-    Room::ety[Room::etynr].ypos = Str2Int(value);
-  }
-  else if(id=="xdim"){
-    Room::ety[Room::etynr].xdim = Str2Int(value);
-  }
-  else if(id=="ydim"){
-    Room::ety[Room::etynr].ydim = Str2Int(value);
-  }
-  else if(id==""||id=="#"){
-    //Comment or empty line
+  std::string value;
+  std::string strid = id.ToString();
+  Room::ety[Room::etynr].scriptname = strid;
+
+  leveldb::Status state = etydb->Get(leveldb::ReadOptions(), (strid+"_ac").c_str(), &value);
+  Room::ety[Room::etynr].animcount = Str2Int(value);
+
+  state = etydb->Get(leveldb::ReadOptions(), (strid+"_img0").c_str(), &value);
+  Room::ety[Room::etynr].imgname[0] = value;
+
+  state = etydb->Get(leveldb::ReadOptions(), (strid+"_vis").c_str(), &value);
+  if(value=="true"){
+    Room::ety[Room::etynr].visible = true;
   }
   else{
-    cout<<"Ety -> Unrecognized Command:" <<id<<endl;
+    Room::ety[Room::etynr].visible = false;
   }
+
+  state = etydb->Get(leveldb::ReadOptions(), (strid+"_act").c_str(), &value);
+  if(value=="true"){
+    Room::ety[Room::etynr].active = true;
+  }
+  else{
+    Room::ety[Room::etynr].active = false;
+  }
+
+  state = etydb->Get(leveldb::ReadOptions(), (strid+"_xpos").c_str(), &value);
+  Room::ety[Room::etynr].xpos = Str2Int(value);
+
+  state = etydb->Get(leveldb::ReadOptions(), (strid+"_ypos").c_str(), &value);
+  Room::ety[Room::etynr].ypos = Str2Int(value);
+
+  state = etydb->Get(leveldb::ReadOptions(), (strid+"_xdim").c_str(), &value);
+  Room::ety[Room::etynr].xdim = Str2Int(value);
+
+  state = etydb->Get(leveldb::ReadOptions(), (strid+"_ydim").c_str(), &value);
+  Room::ety[Room::etynr].ydim = Str2Int(value);
 }
 
 

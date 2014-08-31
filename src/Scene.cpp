@@ -16,11 +16,11 @@
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
 #include <iostream>
 #include <string>
-#include <fstream>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+#include <leveldb/db.h>
 #include "Scene.h"
 #include "Room.h"
 #include "Video.h"
@@ -44,8 +44,8 @@ Scene::~Scene()
 }
 
 
-void Scene::loadRoom(string filename, Video* vid){
-  rme.loadRoom(filename, RMEDEF);
+void Scene::loadRoom(leveldb::Slice id, Video* vid){
+  rme.loadDef(id, RMEDEF);
 
   for(int n=0; n<rme.animcount; n++){
     rme.fgd[n]=vid->loadImage(rme.fgdfile[n]);
@@ -74,52 +74,55 @@ void Scene::placeLayers(Video* vid){
 }
 
 
-void Scene::onClick(int x, int y, Video *vid, string parameter){
+void Scene::onClick(int x, int y, Video *vid, int action){
   for(int n=0; ((rme.ety[n].exists==true)&&(rme.ety[n].active==true)); n++){
     if((x>=rme.ety[n].xpos)&&(x<=rme.ety[n].xpos+rme.ety[n].xdim)&&(y>=rme.ety[n].ypos)&&(y<=rme.ety[n].ypos+rme.ety[n].ydim)){
-      Scene::parseScript(n, parameter, vid);
+      Scene::parseScript(n, action, vid);
     }
   }
 }
 
-void Scene::parseScript(int n, string action, Video* vid){
-  string input="";
-  string id="";
+void Scene::parseScript(int n, int action, Video* vid){
+
+  string scrname = rme.ety[n].scriptname;
   string value="";
-  int strpos;
+  string scrline="";
+  string id="";
+  string command="";
+  int strpos=0;
 
-  fstream script;
-  script.open(("../data/scene/"+rme.ety[n].scriptname).c_str());
-  if(!script.is_open())
-  {
-    cout<<"ERROR: Could not read script: "<<rme.ety[n].scriptname<<endl;
+  leveldb::Status state;
+  if(action==1){
+    state = rme.etydb->Get(leveldb::ReadOptions(), (scrname+"_script1").c_str(), &value);
   }
-  while((script.eof()==false)&&(input!=action)){
-    getline(script,input);
+  else if(action==2){
+    state = rme.etydb->Get(leveldb::ReadOptions(), (scrname+"_script2").c_str(), &value);
+  }
+  else{
+    cout<<"ERROR: No valid action"<<endl;
   }
 
-  while((script.eof()==false)&&(input!="endscr:")){
-    getline(script, input);
+  for(n=0; (value!="NULL:NULL")&&(value!=""); n++){
 
-    strpos=input.find(":");
-    id = input.substr(0, strpos);
-    value = input.substr(strpos+1, 50);
+    strpos=value.find("|");
+    scrline = value.substr(0, strpos);
+    value = value.substr(strpos+1, 255);
+
+    strpos=scrline.find(":");
+    id = scrline.substr(0, strpos);
+    command = scrline.substr(strpos+1, 50);
 
     if(id=="write"){
-      cout<<value<<endl;
+      cout<<command<<endl;
     }
     else if(id=="chroom"){
-      Scene::loadRoom(value, vid);
-    }
-    else if(id=="endscr"){
-      //End.
+      Scene::loadRoom(command, vid);
     }
     else{
-      cout<<"Scene|Script -> Unrecognized Command:" <<id<<endl;
+      cout<<"ERROR: No valid script"<<endl;
+      cout<<value;
     }
   }
-  script.close();
-  
 }
 
 

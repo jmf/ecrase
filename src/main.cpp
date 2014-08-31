@@ -16,9 +16,10 @@
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#include <iostream>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
-#include <iostream>
+#include <leveldb/db.h>
 #include "Video.h"
 #include "Scene.h"
 
@@ -42,7 +43,7 @@ int main(void)
 
   vid.createWindow(projectname,width, height);
   vid.createRenderer();
-  scn.loadRoom("init.rme", &vid);
+  scn.loadRoom("init", &vid);
 
   while(quit==false){
 
@@ -53,10 +54,10 @@ int main(void)
           break;
         case SDL_MOUSEBUTTONDOWN:
           if(event.button.button==SDL_BUTTON_LEFT){
-            scn.onClick(event.motion.x, event.motion.y, &vid, "on_interact:");
+            scn.onClick(event.motion.x, event.motion.y, &vid, 1);
           }
           else if(event.button.button==SDL_BUTTON_RIGHT){
-            scn.onClick(event.motion.x, event.motion.y, &vid, "on_look:");
+            scn.onClick(event.motion.x, event.motion.y, &vid, 2);
           }
           break;
       }
@@ -69,7 +70,6 @@ int main(void)
   }
 
   SDL_Quit();
-
 }
 
 /*TODO:

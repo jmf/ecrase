@@ -26,7 +26,6 @@
 class Video
 {
 public:
-
   Video();
   ~Video();
   void createWindow(std::string projectname, int width, int height);
