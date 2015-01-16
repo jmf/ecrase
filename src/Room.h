@@ -1,42 +1,35 @@
 /*
-* Copyright (C) 2014 jmf
+* Copyright (C) 2014, 2015 jmf
 *
-* Permission is hereby granted, free of charge, to any person obtaining a copy of this software
-* and associated documentation files (the "Software"), to deal in the Software without restriction,
-* including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
-* and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
+* Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
+* and associated documentation files (the "Software"), to deal in the Software without restriction, 
+* including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
+* and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, 
 * subject to the following conditions:
 *
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 *
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
-* NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-* IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-* WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT 
+* NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+* IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
+* WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <iostream>
 #include <string>
-#include <leveldb/db.h>
+#include <vector>
 #include "Video.h"
 
-#ifndef _SCRIPT_H_
-#define _SCRIPT_H_
+#ifndef _ROOM_H_
+#define _ROOM_H_
 
-struct Entity{
-  int etynr;
-  int animcount;
-  std::string scriptname;
-  bool exists;//Does actually exist
-  bool visible;//Is visible on the screen
-  bool active;//Is clickable on the screen
-  int xpos;//x coordinate
-  int ypos;//y coordinate
-  int xdim;//width
-  int ydim;//length
-  SDL_Texture *entimg[5];//Images
-  std::string imgname[5];
+struct RoomDef{
+	std::string name;
+	std::string fgd;
+	std::string bgd;
+	int fgdcount;
+	int bgdcount;
+	std::vector<int> entid;
 };
 
 class Room
@@ -44,22 +37,12 @@ class Room
 public:
   Room();
   ~Room();
-  int roomnr;
-  int animcount;
-  std::string fgdfile[5];
-  std::string bgdfile[5];
-  SDL_Texture *fgd[5];//Foreground image
-  SDL_Texture *bgd[5];//Background image
-  Entity ety[5];
-  int etynr;
-  leveldb::DB* rmedb;
-  leveldb::DB* etydb;
-  leveldb::Options dbopt;
-  void loadDef(leveldb::Slice id, int defval);
+	std::vector<int> getEntids(int roomid);
+	std::string getFgd(int roomid);
+	std::string getBgd(int roomid);
+  void parseRmeDef();
 private:
-  void parseRoom(leveldb::Slice id);
-  void parseEntity(leveldb::Slice id);
-  int Str2Int(std::string input);
+	std::vector<RoomDef> rmdf;
 };
 
 #endif //_ROOM_H_

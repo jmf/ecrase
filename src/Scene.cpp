@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2014 jmf
+* Copyright (C) 2014, 2015 jmf
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
 * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -16,113 +16,90 @@
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#include <fstream>
 #include <iostream>
-#include <string>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
-#include <leveldb/db.h>
+#include <string>
+#include <time.h>
+#include <vector>
+#include "Entity.h"
 #include "Scene.h"
-#include "Room.h"
 #include "Video.h"
-
-enum def{
-  RMEDEF,
-  ETYDEF
-};
 
 using namespace std;
 
-Room rme;
+Scene::Scene(){
+	clock_reset=true;
+	rme.parseRmeDef();
+	ety.parseEtyDef();
+}
 
-Scene::Scene()
-{
+Scene::~Scene(){
 }
 
 
-Scene::~Scene()
-{
-}
-
-
-void Scene::loadRoom(leveldb::Slice id, Video* vid){
-  rme.loadDef(id, RMEDEF);
-
-  for(int n=0; n<rme.animcount; n++){
-    rme.fgd[n]=vid->loadImage(rme.fgdfile[n]);
-    rme.bgd[n]=vid->loadImage(rme.bgdfile[n]);
-  }
-
-  for(int n=0; ((n<=4)&&(rme.ety[n].exists)); n++){
-    for(int imgnr=0; imgnr<rme.ety[n].animcount; imgnr++){
-      rme.ety[n].entimg[imgnr] = vid->loadImage(rme.ety[n].imgname[imgnr]);
-    }
-  }
+void Scene::loadRoom(int id, Video* vid){
+	rmety.resize(0);//Delete previous room information
+	rmenr=id;
+	fgd=vid->loadImage(rme.getFgd(id));
+	bgd=vid->loadImage(rme.getBgd(id));
+	for(int n=0; n<rme.getEntids(rmenr).size(); n++){
+		Currentety tmpety;
+		int i=rme.getEntids(rmenr)[n];
+		tmpety.edf = ety.getEty(i);//Get entities that are in the room
+		for(int img=0; img<tmpety.edf.frame.size(); img++){
+			tmpety.anim.push_back(vid->loadImage(tmpety.edf.frame[img]));
+		}
+		rmety.push_back(tmpety);
+	}
 }
 
 
 void Scene::placeLayers(Video* vid){
-  SDL_Rect dst;
-  SDL_RenderCopy(vid->rdr, rme.bgd[0], NULL, NULL);
+	int animnr;
+	SDL_Rect dst;
+	SDL_RenderCopy(vid->rdr, bgd, NULL, NULL);
+	
+	clock_gettime(CLOCK_MONOTONIC, &timer);//Time animations
+	if((timer.tv_nsec>=(old.tv_nsec+200000000))||(timer.tv_sec>=(old.tv_sec+1))){//200ms per frame
+		clock_reset=true;
+		for(int n=0; n<rmety.size(); n++){
+			rmety[n].counter++;
+		}
+	}
 
-  for(int n=0; (rme.ety[n].exists==true)&&(n<=4); n++){
-    dst.x=rme.ety[n].xpos;//Position x
-    dst.y=rme.ety[n].ypos;//Position y
-    SDL_QueryTexture(rme.ety[n].entimg[0], NULL, NULL, &dst.w, &dst.h);
-    SDL_RenderCopy(vid->rdr, rme.ety[n].entimg[0], NULL, &dst);
-  }
-  SDL_RenderCopy(vid->rdr, rme.fgd[0], NULL, NULL);
+	if(clock_reset==true){
+		clock_gettime(CLOCK_MONOTONIC, &old);
+		clock_reset=false;
+	}
+
+	for(int n=0; n<rmety.size(); n++){
+		if(rmety[n].counter>=rmety[n].anim.size()){
+			rmety[n].counter=0;
+		}
+		animnr=rmety[n].counter;
+		dst.x=rmety[n].edf.xpos;//Position x
+   	dst.y=rmety[n].edf.ypos;//Position y
+   	SDL_QueryTexture(rmety[n].anim[animnr], NULL, NULL, &dst.w, &dst.h);
+   	SDL_RenderCopy(vid->rdr, rmety[n].anim[animnr], NULL, &dst);
+	}
+	SDL_RenderCopy(vid->rdr, fgd, NULL, NULL);
+
+}
+
+void Scene::parseEtyScript(string filename, int section){
+	//Sections: 1-on_look ; 2-on_interact; coming soon
+	//TODO: Add in real function; add script to ety
 }
 
 
 void Scene::onClick(int x, int y, Video *vid, int action){
-  for(int n=0; ((rme.ety[n].exists==true)&&(rme.ety[n].active==true)); n++){
-    if((x>=rme.ety[n].xpos)&&(x<=rme.ety[n].xpos+rme.ety[n].xdim)&&(y>=rme.ety[n].ypos)&&(y<=rme.ety[n].ypos+rme.ety[n].ydim)){
-      Scene::parseScript(n, action, vid);
+//TODO: Add real function with parseEtyScript here.
+for(int n=0; n<rmety.size(); n++){
+    if((x>=rmety[n].edf.xpos)&&(x<=rmety[n].edf.xpos+rmety[n].edf.xdim)&&(y>=rmety[n].edf.ypos)&&(y<=rmety[n].edf.ypos+rmety[n].edf.ydim)){
+      loadRoom(1-rmenr, vid);
     }
   }
 }
-
-void Scene::parseScript(int n, int action, Video* vid){
-
-  string scrname = rme.ety[n].scriptname;
-  string value="";
-  string scrline="";
-  string id="";
-  string command="";
-  int strpos=0;
-
-  leveldb::Status state;
-  if(action==1){
-    state = rme.etydb->Get(leveldb::ReadOptions(), (scrname+"_script1").c_str(), &value);
-  }
-  else if(action==2){
-    state = rme.etydb->Get(leveldb::ReadOptions(), (scrname+"_script2").c_str(), &value);
-  }
-  else{
-    cout<<"ERROR: No valid action"<<endl;
-  }
-
-  for(n=0; (value!="NULL:NULL")&&(value!=""); n++){
-
-    strpos=value.find("|");
-    scrline = value.substr(0, strpos);
-    value = value.substr(strpos+1, 255);
-
-    strpos=scrline.find(":");
-    id = scrline.substr(0, strpos);
-    command = scrline.substr(strpos+1, 50);
-
-    if(id=="write"){
-      cout<<command<<endl;
-    }
-    else if(id=="chroom"){
-      Scene::loadRoom(command, vid);
-    }
-    else{
-      cout<<"ERROR: No valid script"<<endl;
-      cout<<value;
-    }
-  }
-}
-
 

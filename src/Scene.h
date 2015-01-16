@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2014 jmf
+* Copyright (C) 2014, 2015 jmf
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
 * and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -16,25 +16,43 @@
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <string>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
-#include <leveldb/db.h>
+#include <string>
+#include <time.h>
+#include <vector>
+#include "Entity.h"
+#include "Room.h"
 #include "Video.h"
 
 #ifndef _SCENE_H_
 #define _SCENE_H_
+
+struct Currentety{
+	int counter;
+	EntityDef edf;
+	std::vector<SDL_Texture*> anim;
+};
 
 class Scene
 {
 public:
   Scene();
   ~Scene();
-  void loadRoom(leveldb::Slice id, Video* vid);
+  void loadRoom(int id, Video* vid);
   void placeLayers(Video* vid);
   void onClick(int x, int y, Video* vid, int action);
-  void parseScript(int n, int action, Video* vid);
+	void parseEtyScript(std::string filename, int section);
 private:
+	Room rme;
+	Entity ety;
+	std::vector<Currentety> rmety;
+	SDL_Texture* fgd;
+	SDL_Texture* bgd;
+	timespec timer;
+	timespec old;
+	int rmenr;
+	bool clock_reset;
   bool showInventory;
 };
 

@@ -21,95 +21,86 @@
 #include <stdlib.h>
 #include <string>
 #include <vector>
-#include "Room.h"
+#include "Entity.h"
 
 using namespace std;
 
-Room::Room(){
+Entity::Entity(){
 }
 
-Room::~Room(){
+Entity::~Entity(){
 }
 
-vector<int> Room::getEntids(int roomid){
-	return rmdf[roomid].entid;
+EntityDef Entity::getEty(int id){
+	return etydf[id];
 }
 
-string Room::getFgd(int roomid){
-	if(roomid>rmdf.size()){
-		cout<<"Room does not exist"<<endl;
-		exit(1);
-	}
-	return rmdf[roomid].fgd;
-}
+void Entity::parseEtyDef(){
 
-string Room::getBgd(int roomid){
-	if(roomid>rmdf.size()){
-		cout<<"Room does not exist"<<endl;
-		exit(1);
-	}
-	return rmdf[roomid].bgd;
-}
-
-void Room::parseRmeDef(){
-	
-	RoomDef tmprd;
-	ifstream roomfile;
+	ifstream entityfile;
 	int strpos=0;
-	bool end=false;
 	string line;
-	roomfile.open("../data/scene/rmedef");
+	entityfile.open("../data/scene/etydef");
 	
-	if(!roomfile.is_open()){
-		cout<<"Could not open room definition."<<endl;
+	if(!entityfile.is_open()){
+		cout<<"Could not open entity definition."<<endl;
 		exit(1);
 	}
 
-	rmdf.reserve(10); //Allocate some memory. Adjust up to prevent high delays caused by many allocations.
-	
-	while(getline(roomfile, line)){
-		end=false;
-		tmprd.entid.resize(0);
-		
-		//Human readable information:
-		
+	etydf.reserve(10); //Allocate some memory. Adjust up to prevent high delays caused by many allocations.
+
+	while(getline(entityfile, line)){
+		EntityDef tmped;
+		bool end=false;
 		strpos = line.find("|");
-		//The ID is never used, it only makes it easier for humans to find the out the item numbers
+		string id = line.substr(0, strpos);
 		line = line.substr(strpos+1, 255);
 
 		strpos = line.find("|");
 		string name = line.substr(0, strpos);
 		line = line.substr(strpos+1, 255);
 
-		//Images:		
+		//Position:		
 		strpos = line.find("|");
-		string bgd = line.substr(0, strpos);
+		int xpos = stoi(line.substr(0, strpos), NULL, 10);
 		line = line.substr(strpos+1, 255);
 		
 		strpos = line.find("|");
-		string fgd = line.substr(0, strpos);
+		int ypos = stoi(line.substr(0, strpos), NULL, 10);
+		line = line.substr(strpos+1, 255);
+
+		//Size:
+		strpos = line.find("|");
+		int xdim = stoi(line.substr(0, strpos), NULL, 10);
 		line = line.substr(strpos+1, 255);
 		
-		//Objects:
+		strpos = line.find("|");
+		int ydim = stoi(line.substr(0, strpos), NULL, 10);
+		line = line.substr(strpos+1, 255);
+
+		//Animation:
+
 		while(end==false){
 			strpos = line.find("|");
 			if(line.substr(0, strpos)!=";"){
-				int objid = stoi(line.substr(0, strpos), NULL, 10);
+				string frame = line.substr(0, strpos);
 				line = line.substr(strpos+1, 255);
-				tmprd.entid.push_back(objid);
+				tmped.frame.push_back(frame);
 			}
 			else{
 				end=true;
 			}
 		}
-		tmprd.name = name;
-		tmprd.bgd=bgd;
-		tmprd.fgd=fgd;
-		rmdf.push_back(tmprd);
-		tmprd.fgd.resize(0);
-		tmprd.bgd.resize(0);
+		
+		tmped.name = name;
+		tmped.xpos=xpos;
+		tmped.ypos=ypos;
+		tmped.xdim=xdim;
+		tmped.ydim=ydim;
+		
+		etydf.push_back(tmped);
 	}
-	cout<<"Loaded "<<rmdf.size()<<" rooms."<<endl;
-	roomfile.close();
+	cout<<"Loaded "<<etydf.size()<<" entities."<<endl;
+	entityfile.close();
 }
 

@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 2.6)
 
 project(ecrase)
 
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14") 
+
 #Don't forget to upgrade
 set(VERSION_MAJOR 0) #Major Version
 set(VERSION_MINOR 0) #Minor Version
@@ -34,12 +36,10 @@ file(
 
 FIND_PACKAGE(SDL2 REQUIRED)
 FIND_PACKAGE(SDL2_image REQUIRED)
-find_library(LEVELDB_LIBRARY leveldb)
 
 link_libraries(
    ${SDL2_LIBRARY} 
    ${SDL2_IMAGE_LIBRARY}
-   ${LEVELDB_LIBRARY}
 )
 
 add_executable(

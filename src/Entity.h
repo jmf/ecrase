@@ -16,53 +16,33 @@
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <iostream>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
-#include "Scene.h"
+#include <string>
+#include <vector>
 #include "Video.h"
 
-const int width = 800; //Set your custom window width here
-const int height= 600; //Set your custom window height here
-std::string projectname = "Ecrase engine"; //Name of your game
+#ifndef _ENTITY_H_
+#define _ENTITY_H_
 
+struct EntityDef{
+	std::string name;
+	int xpos;
+	int ypos;
+	int xdim;
+	int ydim;
+	std::vector<std::string> frame;
+};
 
-using namespace std;
-
-int main(void)
+class Entity
 {
-	cout<<"ecrase version 0.0.1"<<endl;
-	cout<<"  (c) 2014/15 jmf   "<<endl;
+public:
+  Entity();
+  ~Entity();
+  std::string getFrame(int nr);
+	void parseEtyDef();
+	EntityDef getEty(int id);
+private:
+	std::vector<EntityDef> etydf;
+};
 
-	SDL_Event event;
-	bool quit=false;
-
-	Video vid; //Video-Object handles SDL
-	Scene scn;
-
-	vid.createWindow(projectname,width, height);
-	vid.createRenderer();
-	scn.loadRoom(0, &vid);//Load first room for starting
-
-	while(quit==false){//Query events
-		while(SDL_PollEvent(&event)){
-			if(event.type==SDL_QUIT){
-				quit=true;
-			}
-			else if (event.type==SDL_MOUSEBUTTONDOWN){
-				if(event.button.button==SDL_BUTTON_LEFT){
-					scn.onClick(event.motion.x, event.motion.y, &vid, 1);
-				}
-				else if(event.button.button==SDL_BUTTON_RIGHT){
-					scn.onClick(event.motion.x, event.motion.y, &vid, 2);
-				}
-			}
-		}
-		SDL_RenderClear(vid.rdr);
-		scn.placeLayers(&vid);
-		vid.renderScreen();
-		SDL_Delay(40);
-	}
-	SDL_Quit();
-}
+#endif //_ENTITY_H_
 
