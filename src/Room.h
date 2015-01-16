@@ -35,12 +35,12 @@ struct RoomDef{
 class Room
 {
 public:
-  Room();
-  ~Room();
+	Room();
+	~Room();
 	std::vector<int> getEntids(int roomid);
 	std::string getFgd(int roomid);
 	std::string getBgd(int roomid);
-  void parseRmeDef();
+	void parseRmeDef();
 private:
 	std::vector<RoomDef> rmdf;
 };

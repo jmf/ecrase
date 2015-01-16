@@ -37,11 +37,11 @@ struct Currentety{
 class Scene
 {
 public:
-  Scene();
-  ~Scene();
-  void loadRoom(int id, Video* vid);
-  void placeLayers(Video* vid);
-  void onClick(int x, int y, Video* vid, int action);
+	Scene();
+	~Scene();
+	void loadRoom(int id, Video* vid);
+	void placeLayers(Video* vid);
+	void onClick(int x, int y, Video* vid, int action);
 	void parseEtyScript(std::string filename, int section);
 private:
 	Room rme;
@@ -53,7 +53,7 @@ private:
 	timespec old;
 	int rmenr;
 	bool clock_reset;
-  bool showInventory;
+	bool showInventory;
 };
 
 #endif //_SCENE_H_

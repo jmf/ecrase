@@ -23,59 +23,47 @@
 #include <string>
 #include "Video.h"
 
-Video::Video()
-{
-  if(SDL_Init(SDL_INIT_EVERYTHING)!=0) //Initialize everything
-  {
-    std::cout<<"Initializing SDL failed"<<std::endl;
+Video::Video(){
+	if(SDL_Init(SDL_INIT_EVERYTHING)!=0){ //Initialize everything
+		std::cout<<"Initializing SDL failed"<<std::endl;
 		exit(1);
-  }
+	}
 }
 
-Video::~Video()
-{
-  SDL_DestroyRenderer(rdr);
-  SDL_DestroyWindow(window);
+Video::~Video(){
+	SDL_DestroyRenderer(rdr);
+	SDL_DestroyWindow(window);
 }
 
-void Video::createWindow(std::string projectname, int width, int height)
-{
-  Video::window = SDL_CreateWindow(projectname.c_str(), 100, 100, width, height, SDL_WINDOW_SHOWN);
-  if(!window)
-  {
-    std::cout<<"Window creation failed."<<std::endl;
+void Video::createWindow(std::string projectname, int width, int height){
+	Video::window = SDL_CreateWindow(projectname.c_str(), 100, 100, width, height, SDL_WINDOW_SHOWN);
+	if(!window){
+		std::cout<<"Window creation failed."<<std::endl;
 		exit(1);
-  }
+	}
 }
 
 
-void Video::createRenderer()
-{
-  rdr = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-  if(!rdr)
-  {
-    std::cout<<"Renderer could not be created."<<std::endl;
+void Video::createRenderer(){
+	rdr = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+	if(!rdr){
+		std::cout<<"Renderer could not be created."<<std::endl;
 		exit(1);
-  }
+	}
 }
 
-SDL_Texture* Video::loadImage(std::string filename)
-{
-  SDL_Surface *tmp = IMG_Load(("../data/images/"+filename).c_str());
+SDL_Texture* Video::loadImage(std::string filename){
+	SDL_Surface *tmp = IMG_Load(("../data/images/"+filename).c_str());
 	if(!tmp){
 		std::cout<<"Could not load image: "<<filename<<std::endl;
 		exit(1);
 	}
-  SDL_Texture *ret = SDL_CreateTextureFromSurface(rdr, tmp);
-  SDL_FreeSurface(tmp);
+	SDL_Texture *ret = SDL_CreateTextureFromSurface(rdr, tmp);
+	SDL_FreeSurface(tmp);
 	return ret;
 }
 
-void Video::renderScreen()
-{
-  //TODO: Clear the screen so it actually works
-  //SDL_RenderClear(rdr);
-  //SDL_RenderCopy(rdr, NULL, NULL, NULL);
-  SDL_RenderPresent(rdr);
+void Video::renderScreen(){
+	SDL_RenderPresent(rdr);
 }
 

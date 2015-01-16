@@ -23,19 +23,18 @@
 #ifndef _VIDEO_H_
 #define _VIDEO_H_
 
-class Video
-{
+class Video{
 public:
-  Video();
-  ~Video();
-  void createWindow(std::string projectname, int width, int height);
-  void createRenderer();
-  void renderScreen();
-  void displayScreen();
-  SDL_Renderer *rdr;
-  SDL_Texture* loadImage(std::string filename);
+	Video();
+	~Video();
+	void createWindow(std::string projectname, int width, int height);
+	void createRenderer();
+	void renderScreen();
+	void displayScreen();
+	SDL_Renderer *rdr;
+	SDL_Texture* loadImage(std::string filename);
 private:
-  SDL_Window *window;
+	SDL_Window *window;
 
 };
 

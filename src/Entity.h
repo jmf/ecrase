@@ -35,9 +35,9 @@ struct EntityDef{
 class Entity
 {
 public:
-  Entity();
-  ~Entity();
-  std::string getFrame(int nr);
+	Entity();
+	~Entity();
+	std::string getFrame(int nr);
 	void parseEtyDef();
 	EntityDef getEty(int id);
 private:

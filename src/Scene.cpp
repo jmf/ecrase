@@ -80,9 +80,9 @@ void Scene::placeLayers(Video* vid){
 		}
 		animnr=rmety[n].counter;
 		dst.x=rmety[n].edf.xpos;//Position x
-   	dst.y=rmety[n].edf.ypos;//Position y
-   	SDL_QueryTexture(rmety[n].anim[animnr], NULL, NULL, &dst.w, &dst.h);
-   	SDL_RenderCopy(vid->rdr, rmety[n].anim[animnr], NULL, &dst);
+	 	dst.y=rmety[n].edf.ypos;//Position y
+	 	SDL_QueryTexture(rmety[n].anim[animnr], NULL, NULL, &dst.w, &dst.h);
+	 	SDL_RenderCopy(vid->rdr, rmety[n].anim[animnr], NULL, &dst);
 	}
 	SDL_RenderCopy(vid->rdr, fgd, NULL, NULL);
 
@@ -95,11 +95,11 @@ void Scene::parseEtyScript(string filename, int section){
 
 
 void Scene::onClick(int x, int y, Video *vid, int action){
-//TODO: Add real function with parseEtyScript here.
-for(int n=0; n<rmety.size(); n++){
-    if((x>=rmety[n].edf.xpos)&&(x<=rmety[n].edf.xpos+rmety[n].edf.xdim)&&(y>=rmety[n].edf.ypos)&&(y<=rmety[n].edf.ypos+rmety[n].edf.ydim)){
-      loadRoom(1-rmenr, vid);
-    }
-  }
+	//TODO: Add real function with parseEtyScript here.
+	for(int n=0; n<rmety.size(); n++){
+		if((x>=rmety[n].edf.xpos)&&(x<=rmety[n].edf.xpos+rmety[n].edf.xdim)&&(y>=rmety[n].edf.ypos)&&(y<=rmety[n].edf.ypos+rmety[n].edf.ydim)){
+		loadRoom(1-rmenr, vid);
+		}
+	}
 }
 
